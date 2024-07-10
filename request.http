@@ -1,0 +1,16 @@
+get http://esptemppres.local/sensor/bmp280_pres
+
+###
+get http://esptemppres.local/sensor/bmp280_temp
+
+###
+get http://esptemppres.local/sensor/dallas_temp_1
+
+###
+get http://esptemppres.local/sensor/dallas_temp_2
+
+###
+get http://esptemppres.local/sensor/dht_temp
+
+###
+get http://esptemppres.local/sensor/dht_hum
