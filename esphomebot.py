@@ -152,10 +152,16 @@ def wake_up(message):
 @bot.message_handler(commands=['sensors'])
 def sensors_data(message):
     """Отправка данных с сенсоров в телеграм."""
-    bot.send_message(
-        chat_id=message.chat.id,
-        text=make_tg_answer(get_api_answer())
-    )
+    try:
+        bot.send_message(
+            chat_id=message.chat.id,
+            text=make_tg_answer(get_api_answer())
+        )
+    except GetAnswerFromAPIError as e:
+        bot.send_message(
+            chat_id=message.chat_id,
+            text=f'Ошибка получения данных: {e}'
+        )
 
 
 @bot.message_handler(func=check_boss_id, commands=['settings'])
@@ -164,4 +170,4 @@ def set_settings(message):
     bot.send_message(chat_id=message.chat.id, text='Тут пока ничего нет.')
 
 
-bot.polling()
+bot.infinity_polling()
