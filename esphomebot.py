@@ -5,8 +5,8 @@ from logging import StreamHandler
 import os
 import requests
 import sys
+import time
 
-from dotenv import load_dotenv
 from telebot import TeleBot, types
 
 from exceptions import (
@@ -14,6 +14,7 @@ from exceptions import (
     GetAnswerFromAPIError,
 )
 
+RETRY_PERIOD = 20
 
 logger = logging.getLogger('ESPHome_Bot')
 formatter = logging.Formatter(
@@ -23,8 +24,6 @@ logger.setLevel(logging.DEBUG)
 handler = StreamHandler(stream=sys.stdout)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-
-load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
@@ -169,5 +168,8 @@ def set_settings(message):
     """Заготовка на будущее."""
     bot.send_message(chat_id=message.chat.id, text='Тут пока ничего нет.')
 
-
-bot.infinity_polling()
+if __name__ == '__main__':
+    try:
+        bot.infinity_polling()
+    except Exception:
+        time.sleep(RETRY_PERIOD)
