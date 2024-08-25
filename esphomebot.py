@@ -114,12 +114,12 @@ def get_api_answer():
 
 def make_tg_answer(results):
     """Подготавливает ответ от API ESPHome."""
-    message = ''
+    msg = ''
     for result in results:
         id = result.get('id')[7:]
         state = result.get('state')
-        message += f'{id} = {state}\n'
-    return message
+        msg += f'{id} = {state}\n'
+    return msg
 
 
 check_tokens()
@@ -159,7 +159,7 @@ def sensors_data(message):
         )
     except GetAnswerFromAPIError as e:
         bot.send_message(
-            chat_id=message.chat_id,
+            chat_id=message.chat.id,
             text=f'Ошибка получения данных: {e}'
         )
 
