@@ -1,11 +1,14 @@
+"""Telegram-бот для получения данных с датчиков ESPHome."""
+
 from http import HTTPStatus
+import sys
+import time
 import json
 import logging
 from logging import StreamHandler
 import os
 import requests
-import sys
-import time
+
 
 from telebot import TeleBot, types
 
@@ -15,6 +18,7 @@ from exceptions import (
 )
 
 RETRY_PERIOD = 20
+OFFSET = 7
 
 logger = logging.getLogger('ESPHome_Bot')
 formatter = logging.Formatter(
@@ -31,8 +35,6 @@ BASE_NAME = 'http://esptemppres.local/sensor/'
 ENDPOINTS = [
     'bmp280_pres',
     'bmp280_temp',
-    'dallas_temp_1',
-    'dallas_temp_2',
     'dht_temp',
     'dht_hum',
 ]
@@ -43,8 +45,7 @@ HELP_MESSAGE = (
 
 
 def check_tokens():
-    """
-    Проверка токенов.
+    """Проверка токенов.
 
     Осуществляет проверку токенов Telegram-боту,
     а также наличие ID чата с пользователем.
@@ -58,7 +59,7 @@ def check_tokens():
     """
     tokens = {
         'TELEGRAM_TOKEN': TELEGRAM_TOKEN,
-        'TELEGRAM_CHAT_ID': TELEGRAM_CHAT_ID
+        'TELEGRAM_CHAT_ID': TELEGRAM_CHAT_ID,
     }
     error_msg = ''
     for token_name, token_value in tokens.items():
@@ -76,8 +77,7 @@ def check_boss_id(message):
 
 
 def get_api_answer():
-    """
-    Получение ответа от API ESPHome.
+    """Получение ответа от API ESPHome.
 
     Осуществляет запрос к API ESPHome.
     В случае ошибок получения ответа вызывает исключение
@@ -94,7 +94,7 @@ def get_api_answer():
             response = requests.get(bn + endpoint)
         except requests.RequestException as error:
             error_msg = f'Ошибка соединения с API: {error}'
-            raise GetAnswerFromAPIError(error_msg)
+            raise GetAnswerFromAPIError(error_msg) from error
 
         status_code = response.status_code
         if status_code != HTTPStatus.OK:
@@ -107,7 +107,7 @@ def get_api_answer():
             results.append(response.json())
         except json.JSONDecodeError as error:
             error_msg = f'Не валидный JSON: {error}'
-            raise GetAnswerFromAPIError(error_msg)
+            raise GetAnswerFromAPIError(error_msg) from error
     return results
 
 
@@ -115,7 +115,7 @@ def make_tg_answer(results):
     """Подготавливает ответ от API ESPHome."""
     msg = ''
     for result in results:
-        id = result.get('id')[7:]
+        id = result.get('id')[OFFSET:]
         state = result.get('state')
         msg += f'{id} = {state}\n'
     return msg
@@ -127,8 +127,8 @@ bot = TeleBot(token=TELEGRAM_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def wake_up(message):
-    """
-    Функция приветствия.
+    """Функция приветствия.
+
     В ответ на команду /start
     отправляет сообщение приветственное сообщение.
     """
@@ -153,13 +153,11 @@ def sensors_data(message):
     """Отправка данных с сенсоров в телеграм."""
     try:
         bot.send_message(
-            chat_id=message.chat.id,
-            text=make_tg_answer(get_api_answer())
+            chat_id=message.chat.id, text=make_tg_answer(get_api_answer())
         )
     except GetAnswerFromAPIError as e:
         bot.send_message(
-            chat_id=message.chat.id,
-            text=f'Ошибка получения данных: {e}'
+            chat_id=message.chat.id, text=f'Ошибка получения данных: {e}'
         )
 
 
@@ -167,6 +165,7 @@ def sensors_data(message):
 def set_settings(message):
     """Заготовка на будущее."""
     bot.send_message(chat_id=message.chat.id, text='Тут пока ничего нет.')
+
 
 if __name__ == '__main__':
     try:
