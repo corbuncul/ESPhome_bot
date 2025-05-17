@@ -1,7 +1,7 @@
 # ESPHome bot
 python telegram bot
 
-Бот для получения данных с локальной ESPHome
+Бот для получения данных с локальной ESPHome, находящейся по адресу http://esptemppres.local/.
 ## Для запуска api проекта необходимо:
 - Клонировать репозиторий и перейти в него в командной строке:
 ```
@@ -18,24 +18,15 @@ source env/bin/activate
 python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
-- создать файл .env и внести в него следующие настройки:
+- Создать файл .env и внести в него следующие настройки:
 ```
 TELEGRAM_TOKEN=<Токен бота>
 TELEGRAM_CHAT_ID=<Ваш chat_id>
 ```
+- При необходимости, измените BASE_NAME (адресс ESPhome) в файле esphomebot.py на адрес Вашей ESPhome.
+- Также измените эндпоинты ENDPOINTS сенсоров Вашей ESPhome в файле esphomebot.py.
 - Запустить проект:
 ```
 python3 esphomebot.py
-```
-
-## Для запуска проекта в docker необходимо:
-- создать файл .env и внести в него следующие настройки:
-```
-TELEGRAM_TOKEN=<Токен бота>
-TELEGRAM_CHAT_ID=<Ваш chat_id>
-```
-- запустить проект командой:
-```
-docker compose up -d
 ```
 - Можно пользоваться. Введите команду ```/start``` своему боту.
