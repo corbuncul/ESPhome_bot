@@ -9,7 +9,6 @@ from logging import StreamHandler
 import os
 import requests
 
-
 from telebot import TeleBot, types
 
 from exceptions import (
@@ -89,7 +88,7 @@ def get_api_answer():
     results = []
     bn = BASE_NAME
     for endpoint in ENDPOINTS:
-        logger.debug(f'Соединение с {bn+endpoint}')
+        logger.debug(f'Соединение с {bn + endpoint}')
         try:
             response = requests.get(bn + endpoint)
         except requests.RequestException as error:
@@ -101,7 +100,7 @@ def get_api_answer():
             error_msg = f'Ошибка ответа HTTP status: {status_code}'
             raise GetAnswerFromAPIError(error_msg)
 
-        logger.debug(f'Получен ответ от {bn+endpoint}')
+        logger.debug(f'Получен ответ от {bn + endpoint}')
 
         try:
             results.append(response.json())
